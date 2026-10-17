@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#fff6fa" />
+    <meta
+      name="description"
+      content="Katalog inventaris rumah untuk mencatat barang berharga, foto, nomor seri, ruangan, dan garansi."
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self' data: blob: gap: https://ssl.gstatic.com https://www.gstatic.com https://*.googleapis.com https://*.firebaseapp.com https://*.firebaseio.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: content: file: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseapp.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebaseinstallations.googleapis.com; frame-src 'self' https://*.firebaseapp.com;"
+    />
+    <title>Katalog Inventaris · Home Treasures</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script type="module" src="js/app.js"></script>
+  </head>
+  <body>
+    <div
+      id="toast-region"
+      class="toast-region"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <main id="auth-screen" class="auth-screen">
+      <section class="auth-art" aria-label="Katalog Inventaris">
+        <div class="auth-art-orb orb-one"></div>
+        <div class="auth-art-orb orb-two"></div>
+        <div class="auth-art-content">
+          <div class="brand-mark brand-mark-large"><span>♡</span></div>
+          <p class="eyebrow">YOUR LITTLE HOME ARCHIVE</p>
+          <h1>Simpan cerita<br />di setiap <em>barang.</em></h1>
+          <p class="auth-art-copy">
+            Ruang kecil untuk merawat, mengingat, dan menemukan semua barang
+            kesayanganmu.
+          </p>
+          <div class="auth-art-sticker">made with care <span>✿</span></div>
+        </div>
+        <div class="auth-art-bottom">
+          A little more organized, a little more lovely.
+        </div>
+      </section>
+      <section class="auth-panel">
+        <div class="auth-mobile-brand">
+          <span class="brand-mark"><span>♡</span></span
+          ><span>home<span class="brand-light">treasures</span></span>
+        </div>
+        <div class="auth-card">
+          <div class="auth-sparkle">✳</div>
+          <p class="eyebrow">WELCOME TO YOUR SPACE</p>
+          <h2 id="auth-title">Halo, selamat datang!</h2>
+          <p id="auth-description" class="muted">
+            Mulai rapikan barang berhargamu dalam satu tempat yang manis.
+          </p>
+          <form id="auth-form" class="auth-form hidden">
+            <label for="auth-email">Email</label>
+            <input
+              id="auth-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="nama@email.com"
+              required
+              maxlength="180"
+            />
+            <label for="auth-password">Password</label>
+            <input
+              id="auth-password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Minimal 6 karakter"
+              required
+              minlength="6"
+              maxlength="128"
+            />
+            <button
+              id="auth-submit"
+              class="btn btn-primary btn-full"
+              type="submit"
+            >
+              Masuk ke akun <span>↗</span>
+            </button>
+            <button id="auth-mode-toggle" class="text-button" type="button">
+              Belum punya akun? Daftar
+            </button>
+          </form>
+          <div id="auth-actions" class="auth-actions">
+            <button
+              id="open-auth-form"
+              class="btn btn-primary btn-full"
+              type="button"
+            >
+              Masuk / Daftar dengan Email <span>↗</span>
+            </button>
+            <button
+              id="guest-button"
+              class="btn btn-secondary btn-full"
+              type="button"
+            >
+              Jelajahi sebagai tamu
+            </button>
+            <p class="privacy-note">
+              <span>♡</span> Mode tamu tersimpan untuk sesi akun tamu ini.
+              Gunakan akun email untuk akses inventaris lintas perangkat.
+            </p>
+          </div>
+          <p id="auth-error" class="form-error" role="alert"></p>
+        </div>
+        <p class="auth-footer">PASTEL DAYS, TIDY WAYS <span>✿</span></p>
+      </section>
+    </main>
+
+    <div id="app-shell" class="app-shell hidden">
+      <aside class="sidebar">
+        <a
+          class="brand"
+          href="#dashboard"
+          data-view-link="dashboard"
+          aria-label="Beranda Home Treasures"
+        >
+          <span class="brand-mark"><span>♡</span></span>
+          <span class="brand-name"
+            >home<span class="brand-light">treasures</span
+            ><small>your home inventory</small></span
+          >
+        </a>
+        <div class="sidebar-label">MENU UTAMA</div>
+        <nav class="side-nav" aria-label="Navigasi utama">
+          <button class="nav-item active" data-view="dashboard" type="button">
+            <span class="nav-icon">⌂</span> Dashboard
+          </button>
+          <button class="nav-item" data-view="inventory" type="button">
+            <span class="nav-icon">▤</span> Semua Barang
+            <span id="nav-item-count" class="nav-count">0</span>
+          </button>
+          <button class="nav-item" data-view="rooms" type="button">
+            <span class="nav-icon">⌘</span> Ruangan
+          </button>
+        </nav>
+        <div class="sidebar-note">
+          <div class="note-flower">✿</div>
+          <strong>Small things matter.</strong>
+          <p>Catat hari ini, temukan kapan saja.</p>
+        </div>
+        <div class="sidebar-bottom">
+          <div class="account-mini">
+            <span id="account-avatar" class="avatar">♡</span
+            ><span class="account-mini-text"
+              ><strong id="account-name">Tamu</strong
+              ><small id="account-type">Mode tamu</small></span
+            >
+          </div>
+          <button
+            id="signout-button"
+            class="icon-button signout-button"
+            type="button"
+            aria-label="Keluar"
+            title="Keluar"
+          >
+            ↪
+          </button>
+        </div>
+      </aside>
+
+      <main class="main-area">
+        <header class="topbar">
+          <div class="topbar-title">
+            <span class="mobile-brand-mark">♡</span
+            ><span class="eyebrow">YOUR PERSONAL HOME ARCHIVE</span
+            ><span class="live-dot"></span>
+          </div>
+          <div class="topbar-actions">
+            <div class="top-search">
+              <span>⌕</span
+              ><input
+                id="global-search"
+                type="search"
+                placeholder="Cari nama, merek, nomor seri..."
+                aria-label="Cari inventaris"
+              />
+            </div>
+          </div>
+        </header>
+
+        <section id="view-dashboard" class="content-view">
+          <div class="page-heading page-heading-dashboard">
+            <div>
+              <p class="eyebrow">YOUR SPACE, YOUR PACE ♡</p>
+              <h1>Hai, <span id="welcome-name">teman</span>!</h1>
+              <p class="muted">
+                Sedikit demi sedikit, rumah jadi lebih teratur.
+              </p>
+            </div>
+            <div class="heading-decoration" aria-hidden="true">
+              <span>✿</span><i>♡</i>
+            </div>
+          </div>
+          <section class="hero-card">
+            <div class="hero-text">
+              <span class="hero-kicker">A HOME FULL OF MEMORIES</span>
+              <h2>Barang tersimpan,<br /><em>hati lebih tenang.</em></h2>
+              <p>
+                Semua detail barang berhargamu, tertata rapi dalam satu tempat.
+              </p>
+              <button
+                class="btn btn-white"
+                data-action="add-item"
+                type="button"
+              >
+                Catat barang baru <span>↗</span>
+              </button>
+            </div>
+            <div class="hero-illustration" aria-hidden="true">
+              <div class="hero-sun"></div>
+              <div class="hero-plant plant-left"><i></i><i></i><i></i></div>
+              <div class="hero-shelf">
+                <div class="shelf-book book-one"></div>
+                <div class="shelf-book book-two"></div>
+                <div class="shelf-vase"></div>
+                <div class="shelf-frame"><span>♡</span></div>
+              </div>
+              <div class="hero-plant plant-right"><i></i><i></i><i></i></div>
+              <div class="hero-floor"></div>
+            </div>
+            <div class="hero-doodle doodle-one">✳</div>
+            <div class="hero-doodle doodle-two">♡</div>
+          </section>
+          <section class="stats-grid" aria-label="Statistik inventaris">
+            <article class="stat-card">
+              <div class="stat-icon stat-pink">▤</div>
+              <div>
+                <p>Total Barang</p>
+                <strong id="stat-items">0</strong><small>barang tercatat</small>
+              </div>
+              <span class="stat-decoration">✿</span>
+            </article>
+            <article class="stat-card">
+              <div class="stat-icon stat-lilac">⌂</div>
+              <div>
+                <p>Ruangan</p>
+                <strong id="stat-rooms">0</strong><small>ruangan terisi</small>
+              </div>
+              <span class="stat-decoration">♡</span>
+            </article>
+            <article class="stat-card">
+              <div class="stat-icon stat-peach">Rp</div>
+              <div>
+                <p>Estimasi Nilai</p>
+                <strong id="stat-value">Rp0</strong
+                ><small>nilai harga beli</small>
+              </div>
+              <span class="stat-decoration">✧</span>
+            </article>
+            <article class="stat-card">
+              <div class="stat-icon stat-green">♡</div>
+              <div>
+                <p>Garansi Segera</p>
+                <strong id="stat-warranty">0</strong
+                ><small>habis dalam 30 hari</small>
+              </div>
+              <span class="stat-decoration">✿</span>
+            </article>
+          </section>
+          <section class="section-block">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">YOUR COLLECTION</p>
+                <h2>Barang terbaru <span class="heading-heart">♡</span></h2>
+              </div>
+              <button
+                class="text-link"
+                data-view-link="inventory"
+                type="button"
+              >
+                Lihat semua <span>→</span>
+              </button>
+            </div>
+            <div id="recent-items" class="item-grid"></div>
+          </section>
+          <section id="dashboard-empty" class="empty-state hidden">
+            <div class="empty-art">✿</div>
+            <h3>Mulai koleksi pertamamu</h3>
+            <p>
+              Tambahkan barang berharga supaya semua detailnya tersimpan rapi.
+            </p>
+          </section>
+        </section>
+
+        <section id="view-inventory" class="content-view hidden">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">EVERY LITTLE TREASURE</p>
+              <h1>Semua barang <span class="heading-heart">♡</span></h1>
+              <p class="muted">Lihat dan kelola seluruh barang berhargamu.</p>
+            </div>
+            <button
+              class="btn btn-primary"
+              data-action="add-item"
+              type="button"
+            >
+              ＋ Tambah Barang
+            </button>
+          </div>
+          <section class="filter-panel">
+            <div class="filter-search">
+              <span>⌕</span
+              ><input
+                id="inventory-search"
+                type="search"
+                placeholder="Cari nama, merek, nomor seri..."
+                aria-label="Cari barang"
+              />
+            </div>
+            <select id="filter-room" aria-label="Filter ruangan">
+              <option value="">Semua ruangan</option>
+            </select>
+            <select id="filter-category" aria-label="Filter kategori">
+              <option value="">Semua kategori</option>
+            </select>
+            <select id="filter-condition" aria-label="Filter kondisi">
+              <option value="">Semua kondisi</option>
+              <option value="Baik">Baik</option>
+              <option value="Perlu Perbaikan">Perlu Perbaikan</option>
+              <option value="Rusak">Rusak</option>
+            </select>
+            <select id="sort-by" aria-label="Urutkan barang">
+              <option value="newest">Terbaru</option>
+              <option value="name">Nama A–Z</option>
+              <option value="price-high">Harga tertinggi</option>
+              <option value="price-low">Harga terendah</option>
+            </select>
+            <button id="clear-filters" class="btn btn-ghost" type="button">
+              Reset
+            </button>
+          </section>
+          <div class="results-line">
+            <span id="results-count">0 barang</span
+            ><button id="export-button" class="btn btn-outline" type="button">
+              <span>↧</span> Ekspor CSV
+            </button>
+          </div>
+          <div id="inventory-items" class="item-grid"></div>
+          <div id="inventory-empty" class="empty-state hidden">
+            <div class="empty-art">♡</div>
+            <h3>Belum ada barang di sini</h3>
+            <p>Coba ubah filter atau tambahkan barang baru.</p>
+          </div>
+        </section>
+
+        <section id="view-rooms" class="content-view hidden">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow">A PLACE FOR EVERYTHING</p>
+              <h1>Sudut rumahku <span class="heading-heart">♡</span></h1>
+              <p class="muted">Jelajahi barang berdasarkan ruangannya.</p>
+            </div>
+            <button
+              class="btn btn-primary"
+              data-action="add-item"
+              type="button"
+            >
+              ＋ Tambah Barang
+            </button>
+          </div>
+          <div id="room-grid" class="room-grid"></div>
+          <div id="rooms-empty" class="empty-state hidden">
+            <div class="empty-art">⌂</div>
+            <h3>Ruanganmu masih kosong</h3>
+            <p>Barang yang kamu tambahkan akan dikelompokkan di sini.</p>
+          </div>
+          <section id="room-detail" class="room-detail hidden">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">ROOM COLLECTION</p>
+                <h2 id="room-detail-title">Barang di ruangan</h2>
+              </div>
+              <button
+                id="close-room-detail"
+                class="btn btn-ghost"
+                type="button"
+              >
+                ← Semua ruangan
+              </button>
+            </div>
+            <div id="room-detail-items" class="item-grid"></div>
+          </section>
+        </section>
+
+        <footer class="app-footer">
+          <span>Made with care <b>♡</b></span
+          ><span>HOME TREASURES · <span id="footer-year"></span></span>
+        </footer>
+      </main>
+    </div>
+
+    <nav id="mobile-nav" class="mobile-nav hidden" aria-label="Navigasi mobile">
+      <button
+        class="mobile-nav-item active"
+        data-view="dashboard"
+        type="button"
+      >
+        <span>⌂</span><small>Home</small>
+      </button>
+      <button class="mobile-nav-item" data-view="inventory" type="button">
+        <span>▤</span><small>Barang</small>
+      </button>
+      <button
+        class="mobile-add"
+        data-action="add-item"
+        type="button"
+        aria-label="Tambah barang"
+      >
+        ＋
+      </button>
+      <button class="mobile-nav-item" data-view="rooms" type="button">
+        <span>⌘</span><small>Ruangan</small>
+      </button>
+      <button class="mobile-nav-item" id="mobile-account-button" type="button">
+        <span>♡</span><small>Akun</small>
+      </button>
+    </nav>
+
+    <div id="item-modal" class="modal-backdrop hidden" role="presentation">
+      <section
+        class="modal-card item-modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">A LITTLE DETAIL MATTERS</p>
+            <h2 id="modal-title">Tambah barang baru <span>♡</span></h2>
+            <p class="muted">Simpan detail barang berhargamu di sini.</p>
+          </div>
+          <button
+            class="icon-button modal-close"
+            data-action="close-modal"
+            type="button"
+            aria-label="Tutup"
+          >
+            ×
+          </button>
+        </div>
+        <form id="item-form">
+          <div class="photo-upload-row">
+            <div id="photo-preview" class="photo-preview">
+              <span>♡</span><small>Foto barang</small>
+            </div>
+            <div class="photo-actions">
+              <strong>
+                Foto barang <span class="required-star">*</span>
+              </strong>
+              <p>
+                Foto wajib diisi. Gunakan foto barang yang jelas agar mudah
+                dikenali.
+              </p>
+              <div class="photo-buttons">
+                <button
+                  id="camera-button"
+                  class="btn btn-outline btn-small"
+                  type="button"
+                >
+                  ◎ Ambil foto</button
+                ><button
+                  id="gallery-button"
+                  class="btn btn-ghost btn-small"
+                  type="button"
+                >
+                  ＋ Pilih foto</button
+                ><button
+                  id="remove-photo-button"
+                  class="btn btn-ghost btn-small hidden"
+                  type="button"
+                >
+                  × Hapus foto
+                </button>
+              </div>
+              <input
+                id="photo-input"
+                class="visually-hidden"
+                type="file"
+                accept="image/*"
+              />
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="field field-wide">
+              <label for="item-name"
+                >Nama barang <span class="required-star">*</span></label
+              ><input
+                id="item-name"
+                name="name"
+                required
+                maxlength="90"
+                placeholder="Contoh: Kamera digital"
+              />
+            </div>
+            <div class="field">
+              <label for="item-serial">Nomor seri</label
+              ><input
+                id="item-serial"
+                name="serial"
+                maxlength="100"
+                placeholder="Contoh: SN-123456"
+              /><small>Jika ada. Nomor seri tidak boleh duplikat.</small>
+            </div>
+            <div class="field">
+              <label for="item-brand">Merek</label
+              ><input
+                id="item-brand"
+                name="brand"
+                maxlength="60"
+                placeholder="Contoh: Canon"
+              />
+            </div>
+            <div class="field">
+              <label for="item-category"
+                >Kategori <span class="required-star">*</span></label
+              ><select id="item-category" name="category" required>
+                <option value="">Pilih kategori</option>
+                <option>Elektronik</option>
+                <option>Perhiasan</option>
+                <option>Furniture</option>
+                <option>Peralatan Rumah</option>
+                <option>Dokumen</option>
+                <option>Koleksi</option>
+                <option>Fashion</option>
+                <option>Lainnya</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="item-room"
+                >Ruangan <span class="required-star">*</span></label
+              ><input
+                id="item-room"
+                name="room"
+                list="room-suggestions"
+                required
+                maxlength="55"
+                placeholder="Contoh: Kamar tidur"
+              /><datalist id="room-suggestions">
+                <option value="Ruang Tamu"></option>
+                <option value="Kamar Tidur"></option>
+                <option value="Dapur"></option>
+                <option value="Ruang Kerja"></option>
+                <option value="Gudang"></option>
+                <option value="Garasi"></option>
+              </datalist>
+            </div>
+            <div class="field">
+              <label for="item-price">Harga beli (Rp)</label
+              ><input
+                id="item-price"
+                name="price"
+                type="number"
+                min="0"
+                max="999999999999"
+                step="1"
+                inputmode="numeric"
+                placeholder="Contoh: 2500000"
+              />
+            </div>
+            <div class="field">
+              <label for="item-purchase-date">Tanggal pembelian</label
+              ><input id="item-purchase-date" name="purchaseDate" type="date" />
+            </div>
+            <div class="field">
+              <label for="item-warranty-date">Garansi berakhir</label
+              ><input id="item-warranty-date" name="warrantyDate" type="date" />
+            </div>
+            <div class="field">
+              <label for="item-condition">Kondisi barang</label
+              ><select id="item-condition" name="condition">
+                <option>Baik</option>
+                <option>Perlu Perbaikan</option>
+                <option>Rusak</option>
+              </select>
+            </div>
+            <div class="field field-wide">
+              <label for="item-notes">Catatan</label
+              ><textarea
+                id="item-notes"
+                name="notes"
+                maxlength="700"
+                rows="3"
+                placeholder="Detail tambahan, aksesori, lokasi simpan, dan lainnya..."
+              ></textarea>
+            </div>
+          </div>
+          <p id="item-form-error" class="form-error" role="alert"></p>
+          <div class="modal-actions">
+            <button
+              class="btn btn-ghost"
+              data-action="close-modal"
+              type="button"
+            >
+              Batal</button
+            ><button
+              id="save-item-button"
+              class="btn btn-primary"
+              type="submit"
+            >
+              Simpan barang <span>♡</span>
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay hidden">
+      <div class="loading-card">
+        <div class="loading-flower">✿</div>
+        <strong id="loading-text">Menyiapkan ruangmu...</strong
+        ><span>sebentar ya</span>
+      </div>
+    </div>
+    <script src="cordova.js"></script>
+  </body>
+</html>
