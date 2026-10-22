@@ -49,6 +49,7 @@ const appShell = $("#app-shell");
 const mobileNav = $("#mobile-nav");
 const itemModal = $("#item-modal");
 const itemForm = $("#item-form");
+const detailModal = $("#detail-modal");
 
 // ======================================================
 // UTILITAS
@@ -622,7 +623,7 @@ function itemCard(item) {
     : `<div class="photo-placeholder"><span class="photo-heart">♡</span><small>NO PHOTO YET</small></div>`;
 
   return `
-    <article class="item-card">
+    <article class="item-card" data-action="view-item" data-id="${escapeHtml(item.id)}">
       <div class="item-photo">
         ${photoMarkup}
         <span class="item-badge">${category}</span>
@@ -670,6 +671,65 @@ function itemCard(item) {
       </div>
     </article>
   `;
+}
+
+function openItemDetails(item) {
+  if (!item || !detailModal) return;
+
+  const photo = safeImageSource(item.photo);
+
+  $("#detail-title").textContent = item.name || "Detail barang";
+
+  const photoHtml = photo
+    ? `<div class="detail-photo-wrap">
+         <img
+           src="${escapeHtml(photo)}"
+           alt="Foto ${escapeHtml(item.name)}"
+         />
+       </div>`
+    : `<div class="detail-photo-placeholder">
+         ♡
+         <span>Foto tidak tersedia</span>
+       </div>`;
+
+  const fields = [
+    ["Nomor seri", item.serial || "Tidak memiliki nomor seri"],
+    ["Merek", item.brand || "Tidak dicatat"],
+    ["Kategori", item.category || "Lainnya"],
+    ["Ruangan", item.room || "Lainnya"],
+    ["Harga beli", formatRupiah(item.price)],
+    [
+      "Tanggal pembelian",
+      item.purchaseDate ? formatDate(item.purchaseDate) : "Tidak dicatat"
+    ],
+    [
+      "Garansi berakhir",
+      item.warrantyDate ? formatDate(item.warrantyDate) : "Tidak dicatat"
+    ],
+    ["Kondisi", item.condition || "Baik"],
+    ["Catatan", item.notes || "Tidak ada catatan"]
+  ];
+
+  $("#detail-content").innerHTML = `
+    ${photoHtml}
+
+    <div class="detail-fields">
+      ${fields.map(([label, value]) => `
+        <div class="detail-field">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+        </div>
+      `).join("")}
+    </div>
+  `;
+
+  detailModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeItemDetails() {
+  detailModal.classList.add("hidden");
+  document.body.style.overflow = "";
 }
 
 function renderDashboard() {
@@ -1573,7 +1633,17 @@ function handleDelegatedClick(event) {
       behavior: "smooth",
       block: "start",
     });
+  } else if (action === "view-item") {
+  const item = items.find(
+    (candidate) => candidate.id === id
+  );
+
+  if (item) {
+    openItemDetails(item);
   }
+} else if (action === "close-detail-modal") {
+  closeItemDetails();
+}
 }
 
 // ======================================================
@@ -1610,17 +1680,32 @@ function init() {
 
   itemForm.addEventListener("submit", saveItem);
 
-  itemModal.addEventListener("click", (event) => {
+  itemModal.addEventListener("click", (event) => {  
     if (event.target === itemModal) {
       closeItemModal();
     }
   });
 
+  detailModal.addEventListener("click", (event) => {
+  if (event.target === detailModal) {
+    closeItemDetails();
+  }
+});
+
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !itemModal.classList.contains("hidden")) {
-      closeItemModal();
-    }
-  });
+  if (event.key !== "Escape") return;
+
+  // Tutup detail barang jika sedang terbuka
+  if (detailModal && !detailModal.classList.contains("hidden")) {
+    closeItemDetails();
+    return;
+  }
+
+  // Tutup form tambah/edit jika sedang terbuka
+  if (itemModal && !itemModal.classList.contains("hidden")) {
+    closeItemModal();
+  }
+});
 
   $("#camera-button").addEventListener("click", () =>
     captureOrChoosePhoto("camera"),

@@ -2319,3 +2319,82 @@ button:disabled {
     display: none !important;
   }
 }
+
+/* Detail barang */
+.item-card {
+  cursor: pointer;
+}
+
+.detail-modal-card {
+  width: min(100%, 650px);
+}
+
+.detail-photo-wrap,
+.detail-photo-placeholder {
+  width: 100%;
+  height: 240px;
+  margin-bottom: 18px;
+  border-radius: 15px;
+  overflow: hidden;
+  background: #fff0f6;
+}
+
+.detail-photo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.detail-photo-placeholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  color: #c65d8c;
+  font-size: 36px;
+}
+
+.detail-photo-placeholder span {
+  font-size: 12px;
+}
+
+.detail-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.detail-field {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #f0e3eb;
+  background: #fff8fb;
+  border-radius: 12px;
+}
+
+.detail-field span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+  color: #9b8994;
+}
+
+.detail-field strong {
+  display: block;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .detail-photo-wrap,
+  .detail-photo-placeholder {
+    height: 200px;
+  }
+
+  .detail-fields {
+    grid-template-columns: 1fr;
+  }
+}

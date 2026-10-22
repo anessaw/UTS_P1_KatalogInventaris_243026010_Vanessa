@@ -614,6 +614,31 @@
       </section>
     </div>
 
+    <div id="detail-modal" class="modal-backdrop hidden" role="presentation">
+  <section
+    class="modal-card detail-modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="detail-title"
+  >
+    <div class="modal-header">
+      <div>
+        <p class="eyebrow">YOUR LITTLE TREASURE</p>
+        <h2 id="detail-title">Detail barang</h2>
+        <p class="muted">Informasi lengkap barang inventarismu.</p>
+      </div>
+      <button
+        class="icon-button modal-close"
+        data-action="close-detail-modal"
+        type="button"
+        aria-label="Tutup detail"
+      >×</button>
+    </div>
+
+    <div id="detail-content"></div>
+  </section>
+</div>
+
     <div id="loading-overlay" class="loading-overlay hidden">
       <div class="loading-card">
         <div class="loading-flower">✿</div>
