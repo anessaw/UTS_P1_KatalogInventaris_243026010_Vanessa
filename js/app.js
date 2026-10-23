@@ -43,6 +43,7 @@ let photoDraft = "";
 let selectedRoom = "";
 let authMode = "login";
 let toastCounter = 0;
+let itemIdToDelete = null;
 
 const authScreen = $("#auth-screen");
 const appShell = $("#app-shell");
@@ -50,10 +51,6 @@ const mobileNav = $("#mobile-nav");
 const itemModal = $("#item-modal");
 const itemForm = $("#item-form");
 const detailModal = $("#detail-modal");
-
-// ======================================================
-// UTILITAS
-// ======================================================
 
 function escapeHtml(value) {
   return String(value ?? "").replace(
@@ -227,10 +224,6 @@ function safeImageSource(photo) {
     : "";
 }
 
-// ======================================================
-// TAMPILAN AUTENTIKASI DAN AKUN
-// ======================================================
-
 function showAuthScreen() {
   authScreen?.classList.remove("hidden");
   appShell?.classList.add("hidden");
@@ -279,7 +272,6 @@ function showAuthForm(show) {
   }
 }
 
-// Membuat kolom konfirmasi password jika belum tersedia di HTML.
 function ensureConfirmPasswordField() {
   let group = $("#auth-confirm-group");
 
@@ -329,9 +321,9 @@ function updateAuthModeUI() {
     ? "Daftar untuk menjaga inventarismu tetap tersimpan dan mudah diakses."
     : "Masuk untuk membuka kembali koleksi barang berhargamu.";
 
-  $("#auth-submit").innerHTML = registering
-    ? "Buat akun <span>↗</span>"
-    : "Masuk ke akun <span>↗</span>";
+  $("#auth-submit").textContent = registering
+    ? "Buat akun"
+    : "Masuk ke akun";
 
   $("#auth-mode-toggle").textContent = registering
     ? "Sudah punya akun? Masuk"
@@ -354,9 +346,58 @@ function updateAuthModeUI() {
   }
 }
 
-// ======================================================
-// LOGIN DAN DAFTAR
-// ======================================================
+function setupPasswordToggle(input) {
+  if (!input || input.dataset.passwordToggleReady === "true") {
+    return;
+  }
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "password-input-wrap";
+
+  input.parentNode.insertBefore(wrapper, input);
+  wrapper.appendChild(input);
+
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "password-toggle";
+  toggle.setAttribute("aria-label", "Tampilkan password");
+  toggle.setAttribute("aria-pressed", "false");
+
+  const eyeIcon = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+    </svg>
+  `;
+
+  const eyeOffIcon = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M3 3l18 18"></path>
+    </svg>
+  `;
+
+  toggle.innerHTML = eyeIcon;
+  wrapper.appendChild(toggle);
+
+  input.dataset.passwordToggleReady = "true";
+  input.classList.add("password-field");
+
+  toggle.addEventListener("click", () => {
+    const showPassword = input.type === "password";
+
+    input.type = showPassword ? "text" : "password";
+
+    toggle.setAttribute(
+      "aria-label",
+      showPassword ? "Sembunyikan password" : "Tampilkan password",
+    );
+
+    toggle.setAttribute("aria-pressed", String(showPassword));
+    toggle.innerHTML = showPassword ? eyeOffIcon : eyeIcon;
+  });
+}
 
 async function handleAuthSubmit(event) {
   event.preventDefault();
@@ -460,17 +501,57 @@ async function signInGuest() {
   }
 }
 
-async function signOutUser() {
+function signOutUser() {
   if (!currentUser) return;
 
-  let message = "Keluar dari akun sekarang?";
+  const modal = $("#logout-modal");
+  const card = modal?.querySelector(".logout-card");
+  const title = $("#logout-title");
+  const message = $("#logout-message");
 
-  if (currentUser.isAnonymous) {
-    message =
-      "Kamu sedang memakai mode tamu. Jika keluar, identitas tamu dan akses ke datanya mungkin tidak bisa dipulihkan. Untuk menyimpan data lintas perangkat, gunakan akun email. Tetap keluar?";
+  if (!modal || !card || !title || !message) {
+    console.error("Elemen modal logout tidak ditemukan di index.html.");
+    return;
   }
 
-  if (!window.confirm(message)) return;
+  if (currentUser.isAnonymous) {
+    title.textContent = "Keluar dari mode tamu?";
+
+    message.textContent =
+      "Identitas tamu dan akses ke koleksinya mungkin " +
+      "tidak bisa dipulihkan setelah keluar. Gunakan akun " +
+      "email agar barangmu dapat diakses kembali.";
+
+    card.classList.add("is-guest");
+  } else {
+    title.textContent = "Yakin ingin keluar?";
+
+    message.textContent =
+      "Kamu bisa masuk kembali kapan saja untuk melihat " +
+      "koleksi barang kesayanganmu.";
+
+    card.classList.remove("is-guest");
+  }
+
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+
+  $("#logout-cancel").focus();
+}
+
+function closeLogoutModal() {
+  const modal = $("#logout-modal");
+
+  if (!modal) return;
+
+  modal.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+async function confirmSignOut() {
+  if (!currentUser) return;
+
+  closeLogoutModal();
 
   try {
     if (unsubscribeItems) {
@@ -488,10 +569,6 @@ async function signOutUser() {
     showToast(errorMessage(error, "Belum bisa keluar. Coba lagi."), "error");
   }
 }
-
-// ======================================================
-// FIRESTORE
-// ======================================================
 
 function userItemsCollection() {
   if (!currentUser) {
@@ -563,10 +640,6 @@ function listenToUserItems() {
     },
   );
 }
-
-// ======================================================
-// DASHBOARD DAN STATISTIK
-// ======================================================
 
 function renderAll() {
   renderStats();
@@ -700,26 +773,30 @@ function openItemDetails(item) {
     ["Harga beli", formatRupiah(item.price)],
     [
       "Tanggal pembelian",
-      item.purchaseDate ? formatDate(item.purchaseDate) : "Tidak dicatat"
+      item.purchaseDate ? formatDate(item.purchaseDate) : "Tidak dicatat",
     ],
     [
       "Garansi berakhir",
-      item.warrantyDate ? formatDate(item.warrantyDate) : "Tidak dicatat"
+      item.warrantyDate ? formatDate(item.warrantyDate) : "Tidak dicatat",
     ],
     ["Kondisi", item.condition || "Baik"],
-    ["Catatan", item.notes || "Tidak ada catatan"]
+    ["Catatan", item.notes || "Tidak ada catatan"],
   ];
 
   $("#detail-content").innerHTML = `
     ${photoHtml}
 
     <div class="detail-fields">
-      ${fields.map(([label, value]) => `
+      ${fields
+        .map(
+          ([label, value]) => `
         <div class="detail-field">
           <span>${escapeHtml(label)}</span>
           <strong>${escapeHtml(value)}</strong>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
   `;
 
@@ -741,10 +818,6 @@ function renderDashboard() {
 
   $("#recent-items").classList.toggle("hidden", items.length === 0);
 }
-
-// ======================================================
-// PENCARIAN, FILTER DAN PENGURUTAN
-// ======================================================
 
 function currentSearchTerm() {
   return ($("#inventory-search").value || $("#global-search").value || "")
@@ -855,10 +928,6 @@ function renderInventory() {
       : "Tambahkan barang pertamamu untuk memulai katalog.";
   }
 }
-
-// ======================================================
-// RUANGAN
-// ======================================================
 
 function roomEmoji(room) {
   const name = room.toLocaleLowerCase("id-ID");
@@ -982,10 +1051,6 @@ function setView(view) {
     behavior: "smooth",
   });
 }
-
-// ======================================================
-// FOTO BARANG
-// ======================================================
 
 function setPhotoPreview(dataUrl) {
   const preview = $("#photo-preview");
@@ -1111,10 +1176,6 @@ function validateItemForm(payload) {
   return "";
 }
 
-// ======================================================
-// SIMPAN, EDIT, DAN HAPUS BARANG
-// ======================================================
-
 async function saveItem(event) {
   event.preventDefault();
 
@@ -1209,38 +1270,81 @@ async function saveItem(event) {
   }
 }
 
-async function deleteItem(id) {
+function deleteItem(id) {
   const item = items.find((candidate) => candidate.id === id);
 
   if (!item || !currentUser) return;
 
-  const confirmed = window.confirm(
-    `Hapus "${item.name}" dari inventaris? Tindakan ini tidak bisa dibatalkan.`,
-  );
+  const modal = $("#delete-modal");
+  const message = $("#delete-message");
 
-  if (!confirmed) return;
+  if (!modal || !message) {
+    console.error("Modal hapus tidak ditemukan di index.html.");
+    return;
+  }
+
+  itemIdToDelete = id;
+
+  message.textContent =
+    `Yakin ingin menghapus "${item.name}" dari inventaris? ` +
+    "Tindakan ini tidak bisa dibatalkan.";
+
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+
+  $("#delete-cancel").focus();
+}
+
+function closeDeleteConfirmModal() {
+  const modal = $("#delete-modal");
+
+  if (!modal) return;
+
+  modal.classList.add("hidden");
+  document.body.style.overflow = "";
+  itemIdToDelete = null;
+}
+
+async function confirmDeleteItem() {
+  const id = itemIdToDelete;
+
+  if (!id || !currentUser) {
+    closeDeleteConfirmModal();
+    return;
+  }
+
+  const button = $("#delete-confirm");
+
+  button.disabled = true;
+  button.textContent = "Menghapus...";
 
   try {
-    await deleteDoc(doc(db, "users", currentUser.uid, "items", id));
+    await deleteDoc(
+      doc(db, "users", currentUser.uid, "items", id)
+    );
+
+    closeDeleteConfirmModal();
 
     showToast("Barang berhasil dihapus.", "success");
   } catch (error) {
     console.error(
       "[Hapus Barang]",
       error?.code || "tanpa-kode",
-      error?.message || error,
+      error?.message || error
     );
 
     showToast(
-      errorMessage(error, "Barang belum bisa dihapus. Coba lagi."),
-      "error",
+      errorMessage(
+        error,
+        "Barang belum bisa dihapus. Coba lagi."
+      ),
+      "error"
     );
+  } finally {
+    button.disabled = false;
+    button.textContent = "Ya, hapus";
   }
 }
-
-// ======================================================
-// KOMPRESI FOTO
-// ======================================================
 
 function compressImage(source) {
   return new Promise((resolve, reject) => {
@@ -1423,9 +1527,6 @@ function captureOrChoosePhoto(sourceType) {
             return;
           }
 
-          // FILE_URI menghindari pemuatan Base64 besar dari plugin kamera.
-          // cordova-plugin-file digunakan untuk membaca file foto.
-
           if (typeof window.resolveLocalFileSystemURL === "function") {
             window.resolveLocalFileSystemURL(
               imageUri,
@@ -1483,10 +1584,6 @@ function captureOrChoosePhoto(sourceType) {
     openFilePicker(sourceType);
   }
 }
-
-// ======================================================
-// EKSPOR CSV
-// ======================================================
 
 function csvCell(value) {
   const text = String(value ?? "");
@@ -1572,10 +1669,6 @@ function exportCsv() {
   }
 }
 
-// ======================================================
-// RESET FILTER DAN EVENT
-// ======================================================
-
 function clearFilters() {
   $("#inventory-search").value = "";
   $("#global-search").value = "";
@@ -1590,6 +1683,15 @@ function clearFilters() {
 }
 
 function handleDelegatedClick(event) {
+  const deleteButton = event.target.closest(
+    '[data-action="delete-item"]'
+  );
+
+  if (deleteButton) {
+    event.preventDefault();
+    deleteItem(deleteButton.dataset.id);
+    return;
+  }
   const viewButton = event.target.closest("[data-view]");
 
   if (viewButton) {
@@ -1634,26 +1736,21 @@ function handleDelegatedClick(event) {
       block: "start",
     });
   } else if (action === "view-item") {
-  const item = items.find(
-    (candidate) => candidate.id === id
-  );
+    const item = items.find((candidate) => candidate.id === id);
 
-  if (item) {
-    openItemDetails(item);
+    if (item) {
+      openItemDetails(item);
+    }
+  } else if (action === "close-detail-modal") {
+    closeItemDetails();
   }
-} else if (action === "close-detail-modal") {
-  closeItemDetails();
 }
-}
-
-// ======================================================
-// INISIALISASI APLIKASI
-// ======================================================
 
 function init() {
-  // Tambahkan konfirmasi password sebelum event submit.
   ensureConfirmPasswordField();
   updateAuthModeUI();
+  setupPasswordToggle($("#auth-password"));
+  setupPasswordToggle($("#auth-confirm-password"));
 
   $("#auth-form").addEventListener("submit", handleAuthSubmit);
 
@@ -1676,36 +1773,91 @@ function init() {
 
   $("#mobile-account-button").addEventListener("click", signOutUser);
 
+  $("#logout-cancel").addEventListener("click", closeLogoutModal);
+
+  $("#logout-close").addEventListener("click", closeLogoutModal);
+
+  $("#logout-confirm").addEventListener("click", confirmSignOut);
+
+$("#delete-cancel").addEventListener(
+  "click",
+  closeDeleteConfirmModal
+);
+
+$("#delete-modal-close").addEventListener(
+  "click",
+  closeDeleteConfirmModal
+);
+
+$("#delete-confirm").addEventListener(
+  "click",
+  confirmDeleteItem
+);
+
+$("#delete-modal").addEventListener("click", (event) => {
+  if (event.target.id === "delete-modal") {
+    closeDeleteConfirmModal();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  const modal = $("#delete-modal");
+
+  if (
+    event.key === "Escape" &&
+    modal &&
+    !modal.classList.contains("hidden")
+  ) {
+    closeDeleteConfirmModal();
+  }
+});
+
+  $("#logout-modal").addEventListener("click", (event) => {
+    if (event.target.id === "logout-modal") {
+      closeLogoutModal();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    const modal = $("#logout-modal");
+
+    if (
+      event.key === "Escape" &&
+      modal &&
+      !modal.classList.contains("hidden")
+    ) {
+      closeLogoutModal();
+    }
+  });
+
   document.addEventListener("click", handleDelegatedClick);
 
   itemForm.addEventListener("submit", saveItem);
 
-  itemModal.addEventListener("click", (event) => {  
+  itemModal.addEventListener("click", (event) => {
     if (event.target === itemModal) {
       closeItemModal();
     }
   });
 
   detailModal.addEventListener("click", (event) => {
-  if (event.target === detailModal) {
-    closeItemDetails();
-  }
-});
+    if (event.target === detailModal) {
+      closeItemDetails();
+    }
+  });
 
   document.addEventListener("keydown", (event) => {
-  if (event.key !== "Escape") return;
+    if (event.key !== "Escape") return;
 
-  // Tutup detail barang jika sedang terbuka
-  if (detailModal && !detailModal.classList.contains("hidden")) {
-    closeItemDetails();
-    return;
-  }
+    if (detailModal && !detailModal.classList.contains("hidden")) {
+      closeItemDetails();
+      return;
+    }
 
-  // Tutup form tambah/edit jika sedang terbuka
-  if (itemModal && !itemModal.classList.contains("hidden")) {
-    closeItemModal();
-  }
-});
+    if (itemModal && !itemModal.classList.contains("hidden")) {
+      closeItemModal();
+    }
+  });
 
   $("#camera-button").addEventListener("click", () =>
     captureOrChoosePhoto("camera"),
@@ -1735,6 +1887,27 @@ function init() {
     setPhotoPreview("");
 
     showToast("Foto akan dihapus saat kamu menyimpan perubahan.", "success");
+  });
+
+  const searchToggle = $("#mobile-search-toggle");
+  const searchWrap = searchToggle?.closest(".top-search");
+  const globalSearch = $("#global-search");
+
+  searchToggle?.addEventListener("click", () => {
+    const isOpen = searchWrap.classList.toggle("is-open");
+
+    searchToggle.setAttribute("aria-expanded", String(isOpen));
+
+    if (isOpen) {
+      globalSearch.focus();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".top-search")) {
+      searchWrap?.classList.remove("is-open");
+      searchToggle?.setAttribute("aria-expanded", "false");
+    }
   });
 
   $("#global-search").addEventListener("input", (event) => {
@@ -1769,13 +1942,10 @@ function init() {
     renderRoomDetail();
   });
 
-  // Cordova fires deviceready only in the native WebView.
-  // Browser fallback remains available.
-
   document.addEventListener(
     "deviceready",
     () => {
-      // Plugin Cordova siap digunakan.
+
     },
     false,
   );
@@ -1791,7 +1961,6 @@ function init() {
     ),
   );
 
-  // Pantau status login Firebase.
   onAuthStateChanged(
     auth,
     (user) => {

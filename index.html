@@ -84,7 +84,7 @@
               class="btn btn-primary btn-full"
               type="submit"
             >
-              Masuk ke akun <span>↗</span>
+              Masuk ke akun
             </button>
             <button id="auth-mode-toggle" class="text-button" type="button">
               Belum punya akun? Daftar
@@ -96,7 +96,7 @@
               class="btn btn-primary btn-full"
               type="button"
             >
-              Masuk / Daftar dengan Email <span>↗</span>
+              Masuk / Daftar dengan Email
             </button>
             <button
               id="guest-button"
@@ -177,8 +177,17 @@
           </div>
           <div class="topbar-actions">
             <div class="top-search">
-              <span>⌕</span
-              ><input
+              <button
+                id="mobile-search-toggle"
+                class="search-toggle"
+                type="button"
+                aria-label="Buka pencarian"
+                aria-expanded="false"
+              >
+                ⌕
+              </button>
+
+              <input
                 id="global-search"
                 type="search"
                 placeholder="Cari nama, merek, nomor seri..."
@@ -615,27 +624,129 @@
     </div>
 
     <div id="detail-modal" class="modal-backdrop hidden" role="presentation">
-  <section
-    class="modal-card detail-modal-card"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="detail-title"
-  >
-    <div class="modal-header">
-      <div>
-        <p class="eyebrow">YOUR LITTLE TREASURE</p>
-        <h2 id="detail-title">Detail barang</h2>
-        <p class="muted">Informasi lengkap barang inventarismu.</p>
-      </div>
-      <button
-        class="icon-button modal-close"
-        data-action="close-detail-modal"
-        type="button"
-        aria-label="Tutup detail"
-      >×</button>
+      <section
+        class="modal-card detail-modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="detail-title"
+      >
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">YOUR LITTLE TREASURE</p>
+            <h2 id="detail-title">Detail barang</h2>
+            <p class="muted">Informasi lengkap barang inventarismu.</p>
+          </div>
+          <button
+            class="icon-button modal-close"
+            data-action="close-detail-modal"
+            type="button"
+            aria-label="Tutup detail"
+          >
+            ×
+          </button>
+        </div>
+
+        <div id="detail-content"></div>
+      </section>
     </div>
 
-    <div id="detail-content"></div>
+    <div id="logout-modal" class="logout-backdrop hidden">
+      <section
+        class="logout-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="logout-title"
+        aria-describedby="logout-message"
+      >
+        <button
+          id="logout-close"
+          class="logout-close"
+          type="button"
+          aria-label="Tutup dialog"
+        >
+          ×
+        </button>
+
+        <div class="logout-icon" aria-hidden="true">♡</div>
+
+        <p class="logout-eyebrow">HOME TREASURES</p>
+
+        <h2 id="logout-title">Yakin ingin keluar?</h2>
+
+        <p id="logout-message">
+          Kamu bisa masuk kembali kapan saja untuk melihat koleksi barang
+          kesayanganmu.
+        </p>
+
+        <div class="logout-actions">
+          <button id="logout-cancel" class="btn btn-ghost" type="button">
+            Tetap di sini
+          </button>
+
+          <button id="logout-confirm" class="btn btn-primary" type="button">
+            Ya, keluar
+          </button>
+        </div>
+
+        <p class="logout-footer">THANK YOU FOR STOPPING BY ♡</p>
+      </section>
+    </div>
+
+<div id="delete-modal" class="logout-backdrop hidden">
+  <section
+    class="logout-card delete-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="delete-title"
+    aria-describedby="delete-message"
+  >
+    <button
+      id="delete-modal-close"
+      class="logout-close"
+      type="button"
+      aria-label="Tutup dialog"
+    >
+      ×
+    </button>
+
+    <div class="logout-icon delete-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d="M3 6h18"></path>
+        <path d="M8 6V4h8v2"></path>
+        <path d="m19 6-1 14H6L5 6"></path>
+        <path d="M10 10v6"></path>
+        <path d="M14 10v6"></path>
+      </svg>
+    </div>
+
+    <p class="logout-eyebrow">HOME TREASURES</p>
+
+    <h2 id="delete-title">Hapus barang ini?</h2>
+
+    <p id="delete-message">
+      Apakah kamu yakin ingin menghapus barang ini?
+      Tindakan ini tidak bisa dibatalkan.
+    </p>
+
+    <div class="logout-actions delete-actions">
+      <button
+        id="delete-cancel"
+        class="btn btn-ghost"
+        type="button"
+      >
+        Batal
+      </button>
+
+      <button
+        id="delete-confirm"
+        class="btn btn-primary"
+        type="button"
+      >
+        Ya, hapus
+      </button>
+    </div>
+
+    <p class="logout-footer">YOUR COLLECTION MATTERS ♡</p>
   </section>
 </div>
 

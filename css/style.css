@@ -244,7 +244,7 @@ button:disabled {
     transform: translateY(0);
   }
 }
-/* Authentication */
+
 .auth-screen {
   min-height: 100vh;
   display: grid;
@@ -468,7 +468,7 @@ button:disabled {
 .auth-mobile-brand {
   display: none;
 }
-/* App chrome */
+
 .app-shell {
   min-height: 100vh;
 }
@@ -1286,7 +1286,7 @@ button:disabled {
 .mobile-nav {
   display: none;
 }
-/* Inventory filters and rooms */
+
 .filter-panel {
   padding: 13px;
   display: flex;
@@ -1479,7 +1479,7 @@ button:disabled {
     transform: rotate(360deg);
   }
 }
-/* Add/edit modal */
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -1849,9 +1849,6 @@ button:disabled {
     border-radius: 12px;
     box-shadow: 0 10px 20px #aa758c1c !important;
     display: none;
-  }
-  .top-search:focus-within input {
-    display: block;
   }
   .btn-add-top {
     display: none;
@@ -2320,7 +2317,6 @@ button:disabled {
   }
 }
 
-/* Detail barang */
 .item-card {
   cursor: pointer;
 }
@@ -2397,4 +2393,352 @@ button:disabled {
   .detail-fields {
     grid-template-columns: 1fr;
   }
+}
+
+.top-search .search-toggle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 35px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 25px;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.top-search .search-toggle:focus-visible {
+  outline: 2px solid #e7a6c3;
+  outline-offset: 2px;
+}
+
+@media (max-width: 650px) {
+  .top-search .search-toggle {
+    width: 35px;
+    height: 35px;
+    flex: none;
+  }
+
+  .top-search input {
+    display: none;
+  }
+
+  .top-search.is-open input {
+    display: block;
+    z-index: 20;
+  }
+}
+
+.logout-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(73, 54, 66, 0.34);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  animation: logoutFadeIn 0.22s ease both;
+}
+
+.logout-card {
+  position: relative;
+  width: min(100%, 390px);
+  padding: 32px 28px 22px;
+  overflow: hidden;
+  text-align: center;
+  background: linear-gradient(145deg, #fffafd, #ffffff);
+  border: 1px solid #f4dce7;
+  border-radius: 25px;
+  box-shadow: 0 24px 70px rgba(120, 67, 91, 0.2);
+  animation: logoutPopIn 0.25s ease both;
+}
+
+.logout-card::before {
+  content: "";
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  top: -95px;
+  right: -40px;
+  border-radius: 50%;
+  background: #fce8f1;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.logout-close {
+  position: absolute;
+  top: 12px;
+  right: 13px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 33px;
+  height: 33px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #fff0f6;
+  color: #b76b90;
+  font-size: 23px;
+  line-height: 1;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.logout-close:hover {
+  background: #f8dce9;
+  transform: rotate(90deg);
+}
+
+.logout-icon {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 17px;
+  border: 1px solid #f2d2e1;
+  border-radius: 23px;
+  background: linear-gradient(145deg, #fff0f6, #f9dfeb);
+  color: #c56893;
+  font-size: 38px;
+  line-height: 1;
+  box-shadow: 0 8px 20px rgba(217, 111, 157, 0.12);
+}
+
+.logout-eyebrow {
+  margin: 0 0 9px;
+  color: #bd7b9b;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.logout-card h2 {
+  margin: 0 0 11px;
+  color: #694456;
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+}
+
+.logout-card #logout-message {
+  max-width: 290px;
+  margin: 0 auto;
+  color: #9b8492;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.logout-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.logout-actions button {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  white-space: normal;
+}
+
+.logout-actions .btn-ghost {
+  background: #fff7fb;
+  border: 1px solid #f1dce6;
+  color: #a16c86;
+}
+
+.logout-actions .btn-ghost:hover {
+  background: #ffedf5;
+}
+
+.logout-actions .btn-primary {
+  background: linear-gradient(135deg, #df82aa, #cc6595);
+  box-shadow: 0 6px 15px rgba(204, 101, 149, 0.2);
+}
+
+.logout-actions .btn-primary:hover {
+  background: linear-gradient(135deg, #d875a0, #bd5687);
+}
+
+.logout-footer {
+  margin: 20px 0 0;
+  color: #c7a9b8;
+  font-size: 8px;
+  letter-spacing: 1.4px;
+}
+
+.logout-card.is-guest .logout-icon {
+  background: linear-gradient(145deg, #fff4e8, #fce8dc);
+  border-color: #f4d7c4;
+  color: #b98262;
+}
+
+.logout-card.is-guest .logout-eyebrow {
+  color: #b98262;
+}
+
+@keyframes logoutFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes logoutPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .logout-card {
+    width: min(100%, 360px);
+    padding: 29px 21px 20px;
+    border-radius: 23px;
+  }
+
+  .logout-card h2 {
+    font-size: 25px;
+  }
+
+  .logout-actions {
+    gap: 8px;
+  }
+
+  .logout-actions button {
+    padding: 12px 8px;
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logout-backdrop,
+  .logout-card {
+    animation: none;
+  }
+
+  .logout-close {
+    transition: none;
+  }
+}
+
+.password-input-wrap {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.password-input-wrap > input {
+  width: 100%;
+  padding-right: 52px !important;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+
+  display: grid;
+  place-items: center;
+
+  width: 36px;
+  height: 36px;
+  padding: 0;
+
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #b75e88;
+
+  cursor: pointer;
+  z-index: 2;
+}
+
+.password-toggle:hover {
+  background: #fff0f6;
+}
+
+.password-toggle svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid #e7a6c3;
+  outline-offset: 2px;
+}
+
+.stat-card > div {
+  min-width: 0;
+}
+
+.stat-card #stat-value {
+  font-size: clamp(15px, 4.5vw, 19px);
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+  letter-spacing: -0.5px;
+}
+
+.delete-card .delete-icon {
+  background: linear-gradient(145deg, #fff0f6, #f9dfeb);
+  border-color: #f2d2e1;
+  color: #c45c84;
+}
+
+.delete-icon svg {
+  display: block;
+  width: 27px;
+  height: 27px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.delete-card .logout-eyebrow {
+  color: #bd6b90;
+}
+
+.delete-actions .btn-primary {
+  background: linear-gradient(135deg, #d96f9d, #c85c8b);
+  box-shadow: 0 6px 15px rgba(204, 101, 149, 0.2);
+}
+
+.delete-actions .btn-primary:hover {
+  background: linear-gradient(135deg, #cd638f, #b94d7e);
 }
