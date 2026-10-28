@@ -2742,3 +2742,282 @@ button:disabled {
 .delete-actions .btn-primary:hover {
   background: linear-gradient(135deg, #cd638f, #b94d7e);
 }
+
+@media (min-width: 761px) {
+  .detail-modal-card {
+    width: min(100%, 960px);
+  }
+
+  .detail-content-layout {
+    display: grid;
+    grid-template-columns:
+      minmax(230px, 0.85fr)
+      minmax(0, 1.4fr);
+    gap: 20px;
+    align-items: stretch;
+  }
+
+  .detail-photo-column {
+    display: flex;
+    min-width: 0;
+  }
+
+  .detail-photo-column .detail-photo-wrap,
+  .detail-photo-column .detail-photo-placeholder {
+    width: 100%;
+    height: 390px;
+    min-height: 390px;
+    margin: 0;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  .detail-photo-column .detail-photo-wrap img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .detail-info-column {
+    min-width: 0;
+  }
+
+  .detail-info-column .detail-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 10px;
+  }
+
+  .detail-info-column .detail-field-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Dashboard menampilkan 3 barang di web */
+#recent-items > .item-card:nth-child(n + 4) {
+  display: none;
+}
+
+/* Di HP, menampilkan 4 barang agar gridnya seimbang */
+@media (max-width: 650px) {
+  #recent-items > .item-card:nth-child(n + 4) {
+    display: block;
+  }
+}
+
+/* Detail barang mobile tidak menempel ke tepi layar */
+@media (max-width: 760px) {
+  #detail-modal {
+    align-items: flex-end;
+    padding: 10px 10px
+      calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #detail-modal .detail-modal-card {
+    width: 100%;
+    max-height: calc(100dvh - 32px);
+    margin: 0;
+    padding: 22px 16px 32px;
+    border-radius: 22px;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+}
+
+/* Header detail tetap rapi saat konten di scroll */
+@media (max-width: 760px) {
+  #detail-modal .detail-modal-card .modal-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+
+    background: #fffdfE;
+
+    /* Tutup celah padding di bagian atas dan samping */
+    margin-top: -22px;
+    margin-left: -16px;
+    margin-right: -16px;
+
+    padding: 18px 16px 12px;
+
+    border-radius: 22px 22px 0 0;
+    border-bottom: 1px solid #f5e7ef;
+  }
+
+  #detail-modal .detail-modal-card .modal-close {
+    position: relative;
+    z-index: 21;
+    flex-shrink: 0;
+  }
+}
+
+/* Detail mobile: header tetap, hanya isi yang scroll */
+@media (max-width: 760px) {
+  #detail-modal {
+    align-items: flex-end;
+    overflow: hidden;
+    padding: 10px 10px
+      calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #detail-modal .detail-modal-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: min(90dvh, 760px);
+    max-height: calc(
+      100dvh - 30px - env(safe-area-inset-bottom, 0px)
+    );
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    border-radius: 22px;
+  }
+
+  /* Judul dan tombol tutup tidak ikut scroll */
+  #detail-modal .detail-modal-card .modal-header {
+    position: static;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 20px 16px 12px;
+    background: #fffdfE;
+    border-bottom: 1px solid #f5e7ef;
+    border-radius: 22px 22px 0 0;
+  }
+
+  #detail-modal .detail-modal-card .modal-close {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  /* Hanya foto dan informasi yang bisa digulir */
+  #detail-modal #detail-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px 16px
+      calc(24px + env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+  }
+}
+/* Header detail tetap di atas, isi modal yang digulir */
+@media (max-width: 760px) {
+  #detail-modal .detail-modal-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  #detail-modal .detail-modal-card .modal-header {
+    position: relative !important;
+    top: auto;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 20px 16px 12px;
+    background: #fffdfE;
+    border-bottom: 1px solid #f5e7ef;
+    border-radius: 22px 22px 0 0;
+  }
+
+  #detail-modal #detail-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px 16px 28px;
+  }
+}
+
+/* Warna pilihan kategori agar sesuai tema pink pastel */
+.field select option {
+  background-color: #fff9fc;
+  color: #553a4d;
+}
+
+.field select option:checked {
+  background-color: #f5dce8;
+  color: #553a4d;
+}
+
+/* Dropdown ruangan Home Treasures */
+.room-field:focus-within {
+  position: relative;
+  z-index: 50;
+}
+
+.room-input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.room-input-wrap > input {
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 44px;
+}
+
+.room-suggestions-toggle {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 9px;
+  background: #fff0f6;
+  color: #bd6d95;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.room-suggestions-menu {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: grid;
+  gap: 4px;
+  padding: 7px;
+  background: #fffafd;
+  border: 1px solid #efd8e5;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(100, 55, 78, 0.14);
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.room-option {
+  width: 100%;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #5b4051;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.room-option:hover,
+.room-option:focus-visible {
+  background: #fdeaf2;
+  color: #a84f7a;
+  outline: none;
+}
+
+.room-option[hidden] {
+  display: none !important;
+}

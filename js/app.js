@@ -321,9 +321,7 @@ function updateAuthModeUI() {
     ? "Daftar untuk menjaga inventarismu tetap tersimpan dan mudah diakses."
     : "Masuk untuk membuka kembali koleksi barang berhargamu.";
 
-  $("#auth-submit").textContent = registering
-    ? "Buat akun"
-    : "Masuk ke akun";
+  $("#auth-submit").textContent = registering ? "Buat akun" : "Masuk ke akun";
 
   $("#auth-mode-toggle").textContent = registering
     ? "Sudah punya akun? Masuk"
@@ -667,7 +665,31 @@ function renderStats() {
 
   $("#stat-items").textContent = String(items.length);
   $("#stat-rooms").textContent = String(roomNames.size);
-  $("#stat-value").textContent = formatRupiah(totalValue);
+  let displayTotalValue = formatRupiah(totalValue);
+
+  if (window.matchMedia("(max-width: 650px)").matches) {
+    if (totalValue >= 1_000_000_000) {
+      displayTotalValue = `Rp ${(totalValue / 1_000_000_000).toLocaleString(
+        "id-ID",
+        {
+          maximumFractionDigits: 2,
+        },
+      )} M`;
+    } else if (totalValue >= 1_000_000) {
+      displayTotalValue = `Rp ${(totalValue / 1_000_000).toLocaleString(
+        "id-ID",
+        {
+          maximumFractionDigits: 1,
+        },
+      )} jt`;
+    } else if (totalValue >= 1_000) {
+      displayTotalValue = `Rp ${(totalValue / 1_000).toLocaleString("id-ID", {
+        maximumFractionDigits: 1,
+      })} rb`;
+    }
+  }
+
+  $("#stat-value").textContent = displayTotalValue;
   $("#stat-warranty").textContent = String(upcomingWarranties);
 }
 
@@ -784,21 +806,35 @@ function openItemDetails(item) {
   ];
 
   $("#detail-content").innerHTML = `
-    ${photoHtml}
-
-    <div class="detail-fields">
-      ${fields
-        .map(
-          ([label, value]) => `
-        <div class="detail-field">
-          <span>${escapeHtml(label)}</span>
-          <strong>${escapeHtml(value)}</strong>
-        </div>
-      `,
-        )
-        .join("")}
+  <div class="detail-content-layout">
+    <div class="detail-photo-column">
+      ${photoHtml}
     </div>
-  `;
+
+    <div class="detail-info-column">
+      <div class="detail-fields">
+        ${fields
+          .map(
+            ([label, value]) => `
+          <div class="detail-field ${
+            label === "Catatan" ? "detail-field-wide" : ""
+          }">
+            <span>${escapeHtml(label)}</span>
+            <strong>${escapeHtml(value)}</strong>
+          </div>
+        `,
+          )
+          .join("")}
+      </div>
+    </div>
+  </div>
+`;
+
+  const detailCard = detailModal.querySelector(".detail-modal-card");
+  const detailContent = $("#detail-content");
+
+  if (detailCard) detailCard.scrollTop = 0;
+  if (detailContent) detailContent.scrollTop = 0;
 
   detailModal.classList.remove("hidden");
   document.body.style.overflow = "hidden";
@@ -810,7 +846,7 @@ function closeItemDetails() {
 }
 
 function renderDashboard() {
-  const latest = sortByNewest(items).slice(0, 3);
+  const latest = sortByNewest(items).slice(0, 4);
 
   $("#recent-items").innerHTML = latest.map(itemCard).join("");
 
@@ -1319,9 +1355,7 @@ async function confirmDeleteItem() {
   button.textContent = "Menghapus...";
 
   try {
-    await deleteDoc(
-      doc(db, "users", currentUser.uid, "items", id)
-    );
+    await deleteDoc(doc(db, "users", currentUser.uid, "items", id));
 
     closeDeleteConfirmModal();
 
@@ -1330,15 +1364,12 @@ async function confirmDeleteItem() {
     console.error(
       "[Hapus Barang]",
       error?.code || "tanpa-kode",
-      error?.message || error
+      error?.message || error,
     );
 
     showToast(
-      errorMessage(
-        error,
-        "Barang belum bisa dihapus. Coba lagi."
-      ),
-      "error"
+      errorMessage(error, "Barang belum bisa dihapus. Coba lagi."),
+      "error",
     );
   } finally {
     button.disabled = false;
@@ -1683,9 +1714,7 @@ function clearFilters() {
 }
 
 function handleDelegatedClick(event) {
-  const deleteButton = event.target.closest(
-    '[data-action="delete-item"]'
-  );
+  const deleteButton = event.target.closest('[data-action="delete-item"]');
 
   if (deleteButton) {
     event.preventDefault();
@@ -1747,6 +1776,70 @@ function handleDelegatedClick(event) {
 }
 
 function init() {
+  // Dropdown ruangan dengan tema pink pastel
+  const roomInput = $("#item-room");
+  const roomMenu = $("#room-suggestions");
+  const roomToggle = $("#room-suggestions-toggle");
+  const roomOptions = $$(".room-option", roomMenu);
+
+  function closeRoomMenu() {
+    roomMenu.classList.add("hidden");
+    roomInput.setAttribute("aria-expanded", "false");
+    roomToggle.setAttribute("aria-expanded", "false");
+  }
+
+  function updateRoomMenu() {
+    const query = roomInput.value.trim().toLocaleLowerCase("id-ID");
+    let visibleCount = 0;
+
+    roomOptions.forEach((option) => {
+      const roomName = option.dataset.roomValue.toLocaleLowerCase("id-ID");
+      const matches = roomName.includes(query);
+
+      option.hidden = !matches;
+
+      if (matches) visibleCount += 1;
+    });
+
+    const isOpen = visibleCount > 0;
+
+    roomMenu.classList.toggle("hidden", !isOpen);
+    roomInput.setAttribute("aria-expanded", String(isOpen));
+    roomToggle.setAttribute("aria-expanded", String(isOpen));
+  }
+
+  roomInput.addEventListener("focus", updateRoomMenu);
+  roomInput.addEventListener("input", updateRoomMenu);
+
+  roomToggle.addEventListener("click", () => {
+    if (roomMenu.classList.contains("hidden")) {
+      roomInput.focus();
+      updateRoomMenu();
+    } else {
+      closeRoomMenu();
+    }
+  });
+
+  roomMenu.addEventListener("click", (event) => {
+    const option = event.target.closest(".room-option");
+    if (!option) return;
+
+    roomInput.value = option.dataset.roomValue;
+    closeRoomMenu();
+    roomInput.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".room-field")) {
+      closeRoomMenu();
+    }
+  });
+
+  roomInput.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeRoomMenu();
+    }
+  });
   ensureConfirmPasswordField();
   updateAuthModeUI();
   setupPasswordToggle($("#auth-password"));
@@ -1779,38 +1872,29 @@ function init() {
 
   $("#logout-confirm").addEventListener("click", confirmSignOut);
 
-$("#delete-cancel").addEventListener(
-  "click",
-  closeDeleteConfirmModal
-);
+  $("#delete-cancel").addEventListener("click", closeDeleteConfirmModal);
 
-$("#delete-modal-close").addEventListener(
-  "click",
-  closeDeleteConfirmModal
-);
+  $("#delete-modal-close").addEventListener("click", closeDeleteConfirmModal);
 
-$("#delete-confirm").addEventListener(
-  "click",
-  confirmDeleteItem
-);
+  $("#delete-confirm").addEventListener("click", confirmDeleteItem);
 
-$("#delete-modal").addEventListener("click", (event) => {
-  if (event.target.id === "delete-modal") {
-    closeDeleteConfirmModal();
-  }
-});
+  $("#delete-modal").addEventListener("click", (event) => {
+    if (event.target.id === "delete-modal") {
+      closeDeleteConfirmModal();
+    }
+  });
 
-document.addEventListener("keydown", (event) => {
-  const modal = $("#delete-modal");
+  document.addEventListener("keydown", (event) => {
+    const modal = $("#delete-modal");
 
-  if (
-    event.key === "Escape" &&
-    modal &&
-    !modal.classList.contains("hidden")
-  ) {
-    closeDeleteConfirmModal();
-  }
-});
+    if (
+      event.key === "Escape" &&
+      modal &&
+      !modal.classList.contains("hidden")
+    ) {
+      closeDeleteConfirmModal();
+    }
+  });
 
   $("#logout-modal").addEventListener("click", (event) => {
     if (event.target.id === "logout-modal") {
@@ -1831,6 +1915,39 @@ document.addEventListener("keydown", (event) => {
   });
 
   document.addEventListener("click", handleDelegatedClick);
+
+  // Memberi notifikasi jika nomor seri sudah digunakan
+  $("#item-serial").addEventListener("input", (event) => {
+    const serialInput = event.target;
+
+    const normalizedSerial = serialInput.value
+      .trim()
+      .toLocaleLowerCase("id-ID");
+
+    const duplicate = normalizedSerial
+      ? items.find(
+          (item) =>
+            item.id !== editingId &&
+            String(item.serial || "")
+              .trim()
+              .toLocaleLowerCase("id-ID") === normalizedSerial,
+        )
+      : null;
+
+    if (duplicate) {
+      // Tampilkan notifikasi sekali untuk nomor yang sama
+      if (serialInput.dataset.lastDuplicate !== normalizedSerial) {
+        showToast(
+          `Nomor seri sudah digunakan oleh barang "${duplicate.name}". Gunakan nomor seri yang berbeda.`,
+          "error",
+        );
+      }
+
+      serialInput.dataset.lastDuplicate = normalizedSerial;
+    } else {
+      serialInput.dataset.lastDuplicate = "";
+    }
+  });
 
   itemForm.addEventListener("submit", saveItem);
 
@@ -1942,13 +2059,7 @@ document.addEventListener("keydown", (event) => {
     renderRoomDetail();
   });
 
-  document.addEventListener(
-    "deviceready",
-    () => {
-
-    },
-    false,
-  );
+  document.addEventListener("deviceready", () => {}, false);
 
   window.addEventListener("online", () =>
     showToast("Koneksi kembali tersedia.", "success"),

@@ -544,24 +544,93 @@
                 <option>Lainnya</option>
               </select>
             </div>
-            <div class="field">
-              <label for="item-room"
-                >Ruangan <span class="required-star">*</span></label
-              ><input
-                id="item-room"
-                name="room"
-                list="room-suggestions"
-                required
-                maxlength="55"
-                placeholder="Contoh: Kamar tidur"
-              /><datalist id="room-suggestions">
-                <option value="Ruang Tamu"></option>
-                <option value="Kamar Tidur"></option>
-                <option value="Dapur"></option>
-                <option value="Ruang Kerja"></option>
-                <option value="Gudang"></option>
-                <option value="Garasi"></option>
-              </datalist>
+
+            <!-- Field untuk mengisi ruangan tempat barang disimpan -->
+            <div class="field room-field">
+
+                <!-- Label kolom Ruangan -->
+              <label for="item-room">
+                Ruangan <span class="required-star">*</span>
+              </label>
+
+              <div class="room-input-wrap">
+
+                    <!-- Kolom untuk mengetik atau mengisi nama ruangan -->
+                <input
+                  id="item-room"
+                  name="room"
+                  autocomplete="off"
+                  aria-controls="room-suggestions"
+                  aria-expanded="false"
+                  required
+                  maxlength="55"
+                  placeholder="Contoh: Kamar tidur"
+                />
+
+                    <!-- Tombol panah untuk membuka atau menutup pilihan ruangan -->
+                <button
+                  id="room-suggestions-toggle"
+                  class="room-suggestions-toggle"
+                  type="button"
+                  aria-label="Tampilkan pilihan ruangan"
+                  aria-expanded="false"
+                >
+                  ▾
+                </button>
+
+                    <!-- Daftar pilihan ruangan, tersembunyi sebelum dibuka -->
+                <div
+                  id="room-suggestions"
+                  class="room-suggestions-menu hidden"
+                  role="group"
+                  aria-label="Pilihan ruangan"
+                >
+
+                      <!-- Pilihan ruangan yang dapat dipilih pengguna -->
+                  <button
+                    class="room-option"
+                    type="button"
+                    data-room-value="Ruang Tamu"
+                  >
+                    Ruang Tamu
+                  </button>
+                  <button
+                    class="room-option"
+                    type="button"
+                    data-room-value="Kamar Tidur"
+                  >
+                    Kamar Tidur
+                  </button>
+                  <button
+                    class="room-option"
+                    type="button"
+                    data-room-value="Dapur"
+                  >
+                    Dapur
+                  </button>
+                  <button
+                    class="room-option"
+                    type="button"
+                    data-room-value="Ruang Kerja"
+                  >
+                    Ruang Kerja
+                  </button>
+                  <button
+                    class="room-option"
+                    type="button"
+                    data-room-value="Gudang"
+                  >
+                    Gudang
+                  </button>
+                  <button
+                    class="room-option"
+                    type="button"
+                    data-room-value="Garasi"
+                  >
+                    Garasi
+                  </button>
+                </div>
+              </div>
             </div>
             <div class="field">
               <label for="item-price">Harga beli (Rp)</label
@@ -692,63 +761,55 @@
       </section>
     </div>
 
-<div id="delete-modal" class="logout-backdrop hidden">
-  <section
-    class="logout-card delete-card"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="delete-title"
-    aria-describedby="delete-message"
-  >
-    <button
-      id="delete-modal-close"
-      class="logout-close"
-      type="button"
-      aria-label="Tutup dialog"
-    >
-      ×
-    </button>
-
-    <div class="logout-icon delete-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path d="M3 6h18"></path>
-        <path d="M8 6V4h8v2"></path>
-        <path d="m19 6-1 14H6L5 6"></path>
-        <path d="M10 10v6"></path>
-        <path d="M14 10v6"></path>
-      </svg>
-    </div>
-
-    <p class="logout-eyebrow">HOME TREASURES</p>
-
-    <h2 id="delete-title">Hapus barang ini?</h2>
-
-    <p id="delete-message">
-      Apakah kamu yakin ingin menghapus barang ini?
-      Tindakan ini tidak bisa dibatalkan.
-    </p>
-
-    <div class="logout-actions delete-actions">
-      <button
-        id="delete-cancel"
-        class="btn btn-ghost"
-        type="button"
+    <div id="delete-modal" class="logout-backdrop hidden">
+      <section
+        class="logout-card delete-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-title"
+        aria-describedby="delete-message"
       >
-        Batal
-      </button>
+        <button
+          id="delete-modal-close"
+          class="logout-close"
+          type="button"
+          aria-label="Tutup dialog"
+        >
+          ×
+        </button>
 
-      <button
-        id="delete-confirm"
-        class="btn btn-primary"
-        type="button"
-      >
-        Ya, hapus
-      </button>
+        <div class="logout-icon delete-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 6h18"></path>
+            <path d="M8 6V4h8v2"></path>
+            <path d="m19 6-1 14H6L5 6"></path>
+            <path d="M10 10v6"></path>
+            <path d="M14 10v6"></path>
+          </svg>
+        </div>
+
+        <p class="logout-eyebrow">HOME TREASURES</p>
+
+        <h2 id="delete-title">Hapus barang ini?</h2>
+
+        <p id="delete-message">
+          Apakah kamu yakin ingin menghapus barang ini? Tindakan ini tidak bisa
+          dibatalkan.
+        </p>
+
+        <div class="logout-actions delete-actions">
+          <button id="delete-cancel" class="btn btn-ghost" type="button">
+            Batal
+          </button>
+
+          <button id="delete-confirm" class="btn btn-primary" type="button">
+            Ya, hapus
+          </button>
+        </div>
+
+        <p class="logout-footer">YOUR COLLECTION MATTERS ♡</p>
+      </section>
     </div>
-
-    <p class="logout-footer">YOUR COLLECTION MATTERS ♡</p>
-  </section>
-</div>
 
     <div id="loading-overlay" class="loading-overlay hidden">
       <div class="loading-card">
