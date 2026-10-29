@@ -2437,8 +2437,9 @@ button:disabled {
   }
 }
 
+/* Latar belakang modal yang menutupi halaman. */
 .logout-backdrop {
-  position: fixed;
+  position: fixed; /* Modal menutupi layar. */
   inset: 0;
   z-index: 2500;
   display: grid;

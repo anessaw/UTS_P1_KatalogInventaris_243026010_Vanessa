@@ -1,4 +1,7 @@
+// Mengambil koneksi Firebase yang sudah disiapkan.
 import { db, auth } from "./firebase.js";
+
+// Mengambil fungsi untuk mengelola data Firestore.
 import {
   addDoc,
   collection,
@@ -7,6 +10,8 @@ import {
   onSnapshot,
   updateDoc,
 } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+
+// Mengambil fungsi untuk mengelola login pengguna.
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -14,6 +19,8 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+// mengimpor koneksi Firebase dan fungsi-fungsi yang dibutuhkan. 
+// Fungsi tersebut digunakan untuk menangani login dan mengelola data barang pada Cloud Firestore.
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) =>
@@ -34,7 +41,7 @@ const CATEGORIES = [
 
 const ROOM_ICONS = ["⌂", "☾", "♨", "▧", "▤", "⌁", "✿", "♡"];
 
-let currentUser = null;
+let currentUser = null; 
 let items = [];
 let unsubscribeItems = null;
 let currentView = "dashboard";
@@ -446,6 +453,7 @@ async function handleAuthSubmit(event) {
 
   try {
     if (registering) {
+      // Membuat akun baru menggunakan email dan password.
       await createUserWithEmailAndPassword(auth, email, password);
 
       showToast("Akun berhasil dibuat. Selamat datang!", "success");
@@ -569,10 +577,13 @@ async function confirmSignOut() {
 }
 
 function userItemsCollection() {
+  // currentUser menyimpan informasi pengguna yang sedang login.
   if (!currentUser) {
     throw new Error("Pengguna belum masuk.");
   }
 
+  // currentUser.uid merupakan identitas unik pengguna
+  // Dengan struktur ini, inventaris setiap pengguna berada pada jalurnya sendiri
   return collection(db, "users", currentUser.uid, "items");
 }
 
@@ -879,6 +890,9 @@ function getFilteredItems() {
     ]
       .join(" ")
       .toLocaleLowerCase("id-ID");
+      // join(" ") menggabungkan beberapa informasi barang menjadi satu teks
+      // toLocaleLowerCase("id-ID") mengubah teks menjadi huruf kecil untuk membantu pencarian 
+      // yang tidak bergantung pada huruf besar atau kecil
 
     return (
       (!query || searchable.includes(query)) &&
@@ -1273,6 +1287,7 @@ async function saveItem(event) {
 
   try {
     if (editingId) {
+      // Barang sudah ada, jadi perbarui datanya (edit)
       await updateDoc(
         doc(db, "users", currentUser.uid, "items", editingId),
         payload,
@@ -1280,6 +1295,7 @@ async function saveItem(event) {
 
       showToast("Perubahan barang berhasil disimpan.", "success");
     } else {
+      // Barang belum ada, jadi buat dokumen baru (create)
       await addDoc(userItemsCollection(), payload);
 
       showToast("Barang baru berhasil ditambahkan.", "success");
@@ -1356,6 +1372,7 @@ async function confirmDeleteItem() {
 
   try {
     await deleteDoc(doc(db, "users", currentUser.uid, "items", id));
+    // doc() menunjuk dokumen yang akan dihapus, sedangkan deleteDoc() menghapusnya dari Firestore.
 
     closeDeleteConfirmModal();
 
@@ -1482,10 +1499,13 @@ async function processPhotoSource(source) {
   setLoading(true, "Mengoptimalkan foto...");
 
   try {
+    // Memperkecil ukuran foto.
     const compressed = await compressImage(source);
 
+    // Menyimpan foto sementara.
     photoDraft = compressed;
 
+    // Menampilkan pratinjau foto.
     setPhotoPreview(compressed);
 
     const approximateKb = Math.round((compressed.length * 0.75) / 1024);
@@ -2078,10 +2098,13 @@ function init() {
       currentUser = user;
 
       if (user) {
+        // Jika pengguna sudah login, tampilkan halaman utama.
         showAppScreen();
 
+        // Perbarui informasi akun.
         updateAccountUI();
 
+        // Ambil data inventaris pengguna.
         listenToUserItems();
       } else {
         if (unsubscribeItems) {
@@ -2093,6 +2116,7 @@ function init() {
         items = [];
         selectedRoom = "";
 
+        // Jika belum login, tampilkan halaman login.
         showAuthScreen();
       }
     },
